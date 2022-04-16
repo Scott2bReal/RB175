@@ -1,0 +1,18 @@
+<h2 class="content-subhead">Search</h2>
+
+<form action="/search" method="get">
+  <input name="query" value="<%= params[:query] %>">
+  <button type="submit">Search</button>
+</form>
+
+<% if params[:query] && !@matching_chapters.empty? %>
+  <h2> Results for '<%= params[:query] %>'</h2>
+
+<ul>
+<% @matching_chapters.each do |chapter_number| %>
+  <li><a href="<%= "/chapters/#{chapter_number}" %>"><%= @contents[chapter_number - 1] %></a></li>
+<% end %>
+</ul>
+<% elsif params[:query] %>
+  <h2>Sorry, no matches were found</h2>
+<% end %>
