@@ -9,13 +9,12 @@
   <h2><%= @matching_chapters.size %> Chapters contain results for '<%= params[:query] %>'</h2>
 
   <ul>
-  <% @matching_chapters.each do |ch_num| %>
-    <li><b><%= @contents[ch_num - 1] %></b></li>
+  <% @matching_chapters.each do |chapter| %>
+    <li><b><%= "Chapter #{chapter[:number]}: #{chapter[:name]}" %></b></li>
     <ul>
-    <% chapter = in_paragraphs(File.read("data/chp#{ch_num}.txt")) %>
-    <% chapter.each do |para| %>
-      <% if para[:text].downcase.match?(params[:query].downcase) %>
-        <li><a href='/chapters/<%= ch_num %>#<%= para[:number].to_s %>'><%= highlight(params[:query], para[:text]) %></a></li>
+    <% chapter[:text].each do |paragraph| %>
+      <% if paragraph[:text].match?(/#{params[:query]}/i) %>
+        <li><a href='/chapters/<%= chapter[:number] %>#<%= paragraph[:number] %>'><%= highlight(params[:query], paragraph[:text]) %></a></li>
       <% end %>
     <% end %>
     </ul>

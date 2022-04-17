@@ -16,10 +16,10 @@ helpers do
   end
 
   def each_chapter
-    @contents.each_with_index do |_, idx|
+    @contents.each_with_index do |name, idx|
       chapter_number = idx + 1
-      text = File.read("./data/chp#{chapter_number}.txt").downcase
-      yield chapter_number, text
+      text = File.read("./data/chp#{chapter_number}.txt")
+      yield name, chapter_number, text
     end
   end
 
@@ -28,15 +28,17 @@ helpers do
 
     return results if !query || query.empty?
 
-    each_chapter do |chapter_number, text|
-      results << chapter_number if text.match?(/#{query}/)
+    each_chapter do |name, number, text|
+      if text.match?(/#{query.downcase}/i)
+        results << {name: name, number: number, text: in_paragraphs(text)}
+      end
     end
 
     results
   end
 
   def highlight(query, text)
-    text.gsub(/#{query}/, "<b>#{query}</b>")
+    text.gsub(/#{query}/i, "<b>#{query}</b>")
   end
 end
 
