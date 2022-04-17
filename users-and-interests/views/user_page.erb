@@ -1,0 +1,11 @@
+    <h1>User Page for <%= params[:name].capitalize %>
+    <h2>Email: <%= @info[:email] %></h2>
+    <h3>Interests: <%= @info[:interests].join(', ') %></h3>
+    <h4>Other Users:</h4>
+    <ul>
+      <% @users.each do |name, interests| %>
+        <% unless name == @name %> 
+          <li><a href='/users/<%= name %>'><%= name.capitalize %></a></li>
+        <% end %>
+      <% end %>
+    </ul>
