@@ -11,7 +11,7 @@ helpers do
     paragraph_number = 0
     text.split("\n\n").map do |paragraph|
       paragraph_number += 1
-      "<p id='paragraph#{paragraph_number}'>#{paragraph}</p>"
+      { number: paragraph_number, text: paragraph }
     end
   end
 
@@ -34,6 +34,10 @@ helpers do
 
     results
   end
+
+  def highlight(query, text)
+    text.gsub(/#{query}/, "<b>#{query}</b>")
+  end
 end
 
 not_found do
@@ -54,13 +58,6 @@ get '/chapters/:number' do
   @chapter = File.read("data/chp#{@chapter_number}.txt")
   erb :chapter
 end
-
-# Example of how route parameters work
-# get "/show/:name" do
-#   @title = "The Adventures of Sherlock Holmes"
-#   @name = params[:name]
-#   erb :show_name
-# end
 
 get "/search" do
   @matching_chapters = chapters_matching(params[:query])

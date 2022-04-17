@@ -1,3 +1,7 @@
 <h2 class="content-subhead"><%= @title %></h2>
 
-<%= in_paragraphs(@chapter).join %>
+<% paragraphs_array = in_paragraphs(@chapter).map do |paragraph| %>
+  <% "<p id=#{paragraph[:number]}>" + paragraph[:text] + '</p>' %>
+<% end %>
+
+<%= paragraphs_array.join %>
