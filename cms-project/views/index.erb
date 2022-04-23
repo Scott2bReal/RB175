@@ -1,6 +1,22 @@
-<%= session.delete(:error) %>
+<% if session[:success] %>
+  <div class="flash success">
+    <%= session.delete(:success) %>
+  </div>
+<% elsif session[:error] %>
+  <div class="flash error">
+    <%= session.delete(:error) %>
+  </div>
+<% end %>
+
 <ul>
   <% @files.each do |file| %>
-    <li><a href="<%= file %>"><%= file %></a></li>
+    <li>
+      <a href="<%= file %>"><%= file %></a>
+      <a href="/<%= file %>/edit">edit</a>
+    </li>
   <% end %>
 </ul>
+
+<div>
+  <a href='/new'>Create a new document</a>
+</div>

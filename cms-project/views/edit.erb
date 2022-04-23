@@ -1,5 +1,7 @@
-Edit content of changes.txt:
-<form action='/<%= params[:filename] %>/edit' method='post' id='edit'>
-  <textarea name="edit_file" form='edit'><%= @file_content %></textarea>
-  <button class="submit" id='edit'>Save Changes</button>
+<form action='/<%= params[:filename] %>' method='post' id="new_content">
+  <label for="edit">Edit content of <%= params[:filename] %></label>
+  <div>
+    <textarea name="edit" form='new_content' rows="20" cols="100"><%= @file_content %></textarea>
+  </div>
+  <button class="submit">Save Changes</button>
 </form>
