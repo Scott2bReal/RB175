@@ -60,6 +60,9 @@ Style/EmptyLiteral:
   Description: Prefer literals to Array.new/Hash.new/String.new.
   Enabled: false
 
+Style/ExpandPathArguments:
+  Enabled: false
+
 Style/FrozenStringLiteralComment:
   Enabled: false
   Description: Require the addition of the frozen string literal comment.

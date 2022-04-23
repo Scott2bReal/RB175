@@ -1,0 +1,6 @@
+<%= session.delete(:error) %>
+<ul>
+  <% @files.each do |file| %>
+    <li><a href="<%= file %>"><%= file %></a></li>
+  <% end %>
+</ul>
