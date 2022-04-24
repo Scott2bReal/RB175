@@ -61,22 +61,14 @@ before do
   @files = Dir.glob("#{data_path}/*").map { |path| File.basename(path) }.sort
 end
 
-# View index if logged in
+# View index
 get '/' do
-  if session[:signed_in?]
-    erb :index
-  else
-    redirect '/users/signin'
-  end
+  erb :index
 end
 
 # If not logged in, display sign in page
 get '/users/signin' do
-  unless session[:signed_in?]
-    erb :sign_in
-  else
-    redirect '/'
-  end
+  session[:signed_in?] ? (redirect '/') : (erb :sign_in)
 end
 
 # Submit login form

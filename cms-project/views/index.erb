@@ -14,9 +14,17 @@
   <a href='/new'>New document</a>
 </div>
 
-<div>
-  <form class="inline" action="/users/signout" method="post">
-    <label for="logout"><em>Signed in as <%= session[:username] %></em></label>
-    <button type="submit">Sign Out</button>
-  </form>
-</div>
+<% if session[:signed_in?] %>
+  <div>
+    <form class="inline" action="/users/signout" method="post">
+      <p class="user-status">
+        Signed in as <%= session[:username] %>
+        <button type="submit">Sign Out</button>
+      </p>
+    </form>
+  </div>
+<% else %>
+  <div>
+    <p class="user-status"><a href='/users/signin'>Sign in</a></p>
+  </div>
+<% end %>

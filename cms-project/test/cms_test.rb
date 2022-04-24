@@ -17,7 +17,6 @@ class CMSTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
-    create_document('new.txt', '')
   end
 
   def teardown
@@ -145,6 +144,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_does_not_accept_name_already_in_use
+    create_document('new.txt')
     post '/create', filename: "new.txt"
 
     assert_equal 422, last_response.status
@@ -163,31 +163,56 @@ class CMSTest < Minitest::Test
   end
 
   def test_deleting_document_works
-    get '/'
-    text = "a href=\"new.txt\">new.txt</a>"
-
-    assert_equal 200, last_response.status
-    assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
-    assert_includes last_response.body, text
+    create_document("new.txt")
 
     post '/new.txt/delete'
 
     assert_equal 302, last_response.status
 
     get last_response["Location"]
-    assert_includes last_response.body, "new.txt was successfully deleted."
-    refute_includes last_response.body, text
+    assert_includes last_response.body, "new.txt"
+
+    get '/'
+
+    assert_equal 200, last_response.status
+    refute_includes last_response.body, "new.txt"
   end
 
-  def test_users_must_sign_in
+  def test_signed_out_users_can_sign_in
     get '/'
+
+    assert_includes last_response.body, 'Sign in'
+
+    post '/users/signin', username: 'admin', password: 'password'
 
     assert_equal 302, last_response.status
 
     get last_response["Location"]
 
     assert_equal 200, last_response.status
-    assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
-    assert_includes last_response.body, "Username"
+    assert_includes last_response.body, "Welcome"
+  end
+
+  def test_signed_in_users_can_sign_out
+    post '/users/signin', username: 'admin', password: 'password'
+
+    get last_response["Location"]
+
+    assert_includes last_response.body, "Sign Out"
+
+    post '/users/signout'
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+
+    assert_includes last_response.body, "Sign in"
+  end
+
+  def test_sign_in_with_bad_credentials_fails
+    post '/users/signin', username: 'not', password: 'right'
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Invalid Credentials"
   end
 end
