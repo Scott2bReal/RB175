@@ -16,3 +16,7 @@ main {
 .flash.error {
   background: #E2797E;
 }
+
+form.inline {
+  display: inline;
+}

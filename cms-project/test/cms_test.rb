@@ -17,6 +17,7 @@ class CMSTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
+    create_document('new.txt', '')
   end
 
   def teardown
@@ -123,7 +124,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_create_document_creates_new_document
-    post 'new', filename: "new_file.txt"
+    post '/create', filename: "new_file.txt"
 
     assert_equal 302, last_response.status
 
@@ -135,17 +136,46 @@ class CMSTest < Minitest::Test
   end
 
   def test_does_not_accept_blank_name_for_new_doc
-    post 'new', filename: ""
+    post '/create', filename: ""
 
-    assert_equal 302, last_response.status
+    assert_equal 422, last_response.status
 
-    get last_response["Location"]
-
-    assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
     assert_includes last_response.body, "A name is required."
   end
 
   def test_does_not_accept_name_already_in_use
+    post '/create', filename: "new.txt"
+
+    assert_equal 422, last_response.status
+
+    assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
+    assert_includes last_response.body, "already in use"
+  end
+
+  def test_does_not_allow_file_without_valid_extension
+    post '/create', filename: "wont_work"
+
+    assert_equal 422, last_response.status
+
+    assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
+    assert_includes last_response.body, "valid extension"
+  end
+
+  def test_deleting_document_works
+    get '/'
+    text = "a href=\"new.txt\">new.txt</a>"
+
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
+    assert_includes last_response.body, text
+
+    post '/new.txt/delete'
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "new.txt was successfully deleted."
+    refute_includes last_response.body, text
   end
 end

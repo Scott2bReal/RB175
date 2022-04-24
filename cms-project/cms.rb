@@ -42,6 +42,8 @@ def error_for_new_file_name(filename)
     "A name is required."
   elsif @files.include?(filename)
     "That file name is already in use."
+  elsif !filename.match?(/\S(\.md$|\.txt$)/)
+    "Files must have a valid extension (.md or .txt)"
   end
 end
 
@@ -60,23 +62,32 @@ get '/' do
   erb :index
 end
 
-# View create file page
+# View create new file page
 get '/new' do
   erb :new
 end
 
 # Create new file
-post '/new' do
+post '/create' do
   error = error_for_new_file_name(params[:filename])
 
   if error
     session[:error] = error
-    redirect '/new'
+    status 422
+    erb :new
   else
     create_document(params[:filename])
     session[:success] = "#{params[:filename]} was created."
     redirect '/'
   end
+end
+
+# Delete file
+post '/:filename/delete' do
+  File.delete(data_path + '/' + params[:filename])
+  session[:success] = "#{params[:filename]} was successfully deleted."
+  status 204
+  redirect '/'
 end
 
 # View file
