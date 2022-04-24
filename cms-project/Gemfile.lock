@@ -23,6 +23,7 @@ GEM
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
     tilt (2.0.10)
+    yaml (0.2.0)
 
 PLATFORMS
   ruby
@@ -35,6 +36,7 @@ DEPENDENCIES
   redcarpet
   sinatra (~> 1.4.7)
   sinatra-contrib
+  yaml
 
 RUBY VERSION
    ruby 2.7.0p0

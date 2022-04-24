@@ -2,6 +2,19 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'redcarpet'
 require 'tilt/erubis'
+require 'yaml'
+
+MUST_SIGN_IN_ERROR_MESSAGE = "You must be signed in to do that"
+
+def signed_in?
+  return true if session[:username]
+  false
+end
+
+def redirect_to_index_with_error_message
+  session[:error] = MUST_SIGN_IN_ERROR_MESSAGE
+  redirect '/'
+end
 
 def data_path
   if ENV["RACK_ENV"] == 'test'
@@ -47,8 +60,19 @@ def error_for_new_file_name(filename)
   end
 end
 
+def load_user_credentials
+  path = if ENV["RACK_ENV"] == 'test'
+           File.expand_path('../test/users.yml', __FILE__)
+         else
+           File.expand_path('../users.yml', __FILE__)
+         end
+
+  YAML.load_file(path)
+end
+
 def valid_login?(username, password)
-  username == 'admin' && password == 'password'
+  valid_logins = load_user_credentials
+  valid_logins[username] == password
 end
 
 configure do
@@ -63,6 +87,7 @@ end
 
 # View index
 get '/' do
+  session[:signed_in?] = true if session[:username]
   erb :index
 end
 
@@ -98,11 +123,15 @@ end
 
 # View create new file page
 get '/new' do
+  redirect_to_index_with_error_message unless signed_in?
+
   erb :new
 end
 
 # Create new file
 post '/create' do
+  redirect_to_index_with_error_message unless signed_in?
+
   error = error_for_new_file_name(params[:filename])
 
   if error
@@ -118,6 +147,8 @@ end
 
 # Delete file
 post '/:filename/delete' do
+  redirect_to_index_with_error_message unless signed_in?
+
   File.delete(data_path + '/' + params[:filename])
   session[:success] = "#{params[:filename]} was successfully deleted."
   status 204
@@ -139,7 +170,8 @@ end
 
 # View edit page
 get '/:filename/edit' do
-  redirect '/new' if params[:filename] == 'new'
+  redirect_to_index_with_error_message unless signed_in?
+
   path = @root + "/data/#{params[:filename]}"
   @file_content = File.read(path)
   erb :edit
@@ -147,6 +179,8 @@ end
 
 # Edit file contents
 post '/:filename' do
+  redirect_to_index_with_error_message unless signed_in?
+
   path = @root + "/data/#{params[:filename]}"
   File.write(path, params[:edit])
   session[:success] = "#{params[:filename]} has been edited."
