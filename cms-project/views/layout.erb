@@ -5,8 +5,20 @@
     <link rel="stylesheet" href="/stylesheets/application.css">
   </head>
   <body>
+
     <main>
+      <% if session[:success] %>
+        <div class="flash success">
+          <%= session.delete(:success) %>
+        </div>
+      <% elsif session[:error] %>
+        <div class="flash error">
+          <%= session.delete(:error) %>
+        </div>
+      <% end %>
+
       <%= yield %>
     </main>
+
   </body>
 </html>

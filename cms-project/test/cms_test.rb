@@ -135,6 +135,17 @@ class CMSTest < Minitest::Test
   end
 
   def test_does_not_accept_blank_name_for_new_doc
+    post 'new', filename: ""
 
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
+    assert_includes last_response.body, "A name is required."
+  end
+
+  def test_does_not_accept_name_already_in_use
   end
 end

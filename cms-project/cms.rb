@@ -3,26 +3,12 @@ require 'sinatra/reloader' if development?
 require 'redcarpet'
 require 'tilt/erubis'
 
-configure do
-  enable :sessions
-  set :sessions_secret, 'secret'
-end
-
-before do
-  @root = File.expand_path("..", __FILE__)
-  @files = Dir.glob("#{data_path}/*").map { |path| File.basename(path) }.sort
-end
-
 def data_path
   if ENV["RACK_ENV"] == 'test'
     File.expand_path("../test/data", __FILE__)
   else
     File.expand_path("../data", __FILE__)
   end
-end
-
-def error_for_file_request(file_name)
-  @files.include?(file_name) ? nil : "#{file_name} does not exist"
 end
 
 def load_file_content(path)
@@ -47,20 +33,53 @@ def create_document(name, content = '')
   end
 end
 
+def error_for_file_request(filename)
+  @files.include?(filename) ? nil : "#{filename} does not exist"
+end
+
+def error_for_new_file_name(filename)
+  if filename == ''
+    "A name is required."
+  elsif @files.include?(filename)
+    "That file name is already in use."
+  end
+end
+
+configure do
+  enable :sessions
+  set :sessions_secret, 'secret'
+end
+
+before do
+  @root = File.expand_path("..", __FILE__)
+  @files = Dir.glob("#{data_path}/*").map { |path| File.basename(path) }.sort
+end
+
+# View index
 get '/' do
   erb :index
 end
 
+# View create file page
 get '/new' do
   erb :new
 end
 
+# Create new file
 post '/new' do
-  create_document(params[:filename])
-  session[:success] = "#{params[:filename]} was created."
-  redirect '/'
+  error = error_for_new_file_name(params[:filename])
+
+  if error
+    session[:error] = error
+    redirect '/new'
+  else
+    create_document(params[:filename])
+    session[:success] = "#{params[:filename]} was created."
+    redirect '/'
+  end
 end
 
+# View file
 get '/:filename' do
   error = error_for_file_request(params[:filename])
   path = @root + "/data/#{params[:filename]}"
@@ -73,6 +92,7 @@ get '/:filename' do
   end
 end
 
+# View edit page
 get '/:filename/edit' do
   redirect '/new' if params[:filename] == 'new'
   path = @root + "/data/#{params[:filename]}"
@@ -80,6 +100,7 @@ get '/:filename/edit' do
   erb :edit
 end
 
+# Edit file contents
 post '/:filename' do
   path = @root + "/data/#{params[:filename]}"
   File.write(path, params[:edit])
