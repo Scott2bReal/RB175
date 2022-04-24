@@ -178,4 +178,16 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "new.txt was successfully deleted."
     refute_includes last_response.body, text
   end
+
+  def test_users_must_sign_in
+    get '/'
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response["Content-Type"]
+    assert_includes last_response.body, "Username"
+  end
 end

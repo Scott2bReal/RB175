@@ -47,6 +47,10 @@ def error_for_new_file_name(filename)
   end
 end
 
+def valid_login?(username, password)
+  username == 'admin' && password == 'password'
+end
+
 configure do
   enable :sessions
   set :sessions_secret, 'secret'
@@ -57,9 +61,47 @@ before do
   @files = Dir.glob("#{data_path}/*").map { |path| File.basename(path) }.sort
 end
 
-# View index
+# View index if logged in
 get '/' do
-  erb :index
+  if session[:signed_in?]
+    erb :index
+  else
+    redirect '/users/signin'
+  end
+end
+
+# If not logged in, display sign in page
+get '/users/signin' do
+  unless session[:signed_in?]
+    erb :sign_in
+  else
+    redirect '/'
+  end
+end
+
+# Submit login form
+post '/users/signin' do
+  username = params[:username]
+  password = params[:password]
+
+  if valid_login?(username, password)
+    session[:signed_in?] = true
+    session[:username] = username
+    session[:success] = "Welcome!"
+    redirect '/'
+  else
+    session[:error] = "Invalid Credentials"
+    status 422
+    erb :sign_in
+  end
+end
+
+# Sign Out
+post '/users/signout' do
+  session[:signed_in?] = false
+  session.delete(:username)
+  session[:success] = "You have been signed out."
+  redirect '/'
 end
 
 # View create new file page

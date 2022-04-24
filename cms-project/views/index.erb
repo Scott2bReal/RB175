@@ -11,5 +11,12 @@
 </ul>
 
 <div>
-  <a href='/new'>Create a new document</a>
+  <a href='/new'>New document</a>
+</div>
+
+<div>
+  <form class="inline" action="/users/signout" method="post">
+    <label for="logout"><em>Signed in as <%= session[:username] %></em></label>
+    <button type="submit">Sign Out</button>
+  </form>
 </div>
