@@ -384,4 +384,13 @@ class CMSTest < Minitest::Test
 
     assert_includes last_response.body, "copy_of"
   end
+
+  def test_must_be_signed_in_to_duplicate_document
+    create_document('new.txt')
+
+    post '/new.txt/duplicate'
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that", session[:error]
+  end
 end
