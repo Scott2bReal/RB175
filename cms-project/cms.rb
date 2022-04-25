@@ -235,7 +235,7 @@ end
 post '/:filename/duplicate' do
   new_filename = increment_filename_for_duplication(params[:filename])
   session[:success] = "#{params[:filename]} was copied to #{new_filename}"
-  erb :index
+  redirect '/'
 end
 
 # Create new file
