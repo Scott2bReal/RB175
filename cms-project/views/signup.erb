@@ -1,0 +1,22 @@
+<h1>Create New Account</h1>
+
+<form class='inline' action='/users/signup/create' method='post'>
+  <div>
+    <label>Username: </label>
+    <input type='text' name='new_username' value='<%= params[:new_username] %>' required>
+    <label class=user-status>Username must be between 4 and 12 characters</label>
+  </div>
+  <div>
+    <label>Password:</label>
+    <input type='password' name='new_password' required>
+  </div>
+  <div>
+    <label>Retype Password:</label>
+    <input type='password' name='verify_password' required>
+  </div>
+  <div>
+    <button type="submit">Create account</button>
+  </div>
+</form>
+
+<p class='user-status'><a href='/'>Go back</a></p>

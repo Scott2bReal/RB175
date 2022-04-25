@@ -1,0 +1,9 @@
+---
+admin: "$2a$12$tGB7MFiCDYV8QWXHPE1lM.X9Kg67bEh1oYIXrZHXtJfhJ.7Aef90u"
+scott: "$2a$12$ILtvB4w6PSfGivIjzOnkYe2sMhz7YCqM5owc7nr8toEhr2e0jo2f6"
+username: !ruby/string:BCrypt::Password
+  str: "$2a$12$tkSDKokqTO053nxV4MnrDu1eDuXxYQq9k/ol2o3724R1FETNIDLey"
+  version: 2a
+  cost: 12
+  salt: "$2a$12$tkSDKokqTO053nxV4MnrDu"
+  checksum: 1eDuXxYQq9k/ol2o3724R1FETNIDLey

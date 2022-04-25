@@ -1,4 +1,3 @@
-{
-  admin: password,
-  scott: okyeah
-}
+---
+admin: "$2a$12$lbERainGi/ch15EvlS2ZbOLqdxYiJyAHXvarAP2F6fWL7EWk2zFsW"
+scott: "$2a$12$CQa/9sAkDBOkFsLIib/Vq.5pclqr2P0h2lpwCzOQqE23Qf88gSnCy"

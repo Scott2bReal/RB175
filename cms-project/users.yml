@@ -1,4 +1,5 @@
-{
-  admin: password,
-  scott: okyeah
-}
+---
+admin: "$2a$12$tGB7MFiCDYV8QWXHPE1lM.X9Kg67bEh1oYIXrZHXtJfhJ.7Aef90u"
+scott: "$2a$12$ILtvB4w6PSfGivIjzOnkYe2sMhz7YCqM5owc7nr8toEhr2e0jo2f6"
+new_user: "$2a$12$c9QlraOUBsfpvmmAfU0uU.REhQKwLZkmTk8EAuen1TKnKyDDjsC2a"
+new-user: "$2a$12$QOt9zpfzcAu7Za0SVMS5UO2SX2H4t5tvdxDigaRMWl/ISpbsqIxei"

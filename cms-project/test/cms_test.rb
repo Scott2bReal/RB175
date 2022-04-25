@@ -39,6 +39,15 @@ class CMSTest < Minitest::Test
     {
       "rack.session" => {
         username: 'admin',
+        password: 'secret'
+      }
+    }
+  end
+
+  def delete_test_sesh
+    {
+      "rack.session" => {
+        username: 'new_user',
         password: 'password'
       }
     }
@@ -282,14 +291,13 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'Sign in'
     assert_nil session[:username]
 
-    post '/users/signin', username: 'admin', password: 'password'
+    post '/users/signin', username: 'admin', password: 'secret'
 
     assert_equal "admin", session[:username]
-    assert_equal true, session[:signed_in?]
   end
 
   def test_signing_in_displays_flash_message
-    post '/users/signin', username: 'admin', password: 'password'
+    post '/users/signin', username: 'admin', password: 'secret'
 
     assert_equal 'Welcome!', session[:success]
 
@@ -301,11 +309,10 @@ class CMSTest < Minitest::Test
   def test_signed_in_users_can_sign_out
     get '/', {}, admin_session
 
-    assert_equal true, session[:signed_in?]
+    assert_equal 'admin', session[:username]
 
     post '/users/signout'
 
-    refute_equal true, session[:signed_in?]
     assert_nil session[:username]
   end
 
@@ -314,5 +321,54 @@ class CMSTest < Minitest::Test
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, "Invalid Credentials"
+  end
+
+  def test_cannot_create_username_too_long
+    post '/users/signup/create', {
+      new_username: 'twelve characters',
+      new_password: '1',
+      verify_password: '1'
+    }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "too long"
+  end
+
+  def test_cannot_create_username_that_already_exists
+    post '/users/signup/create', {
+      new_username: 'admin',
+      new_password: 'secret',
+      verify_password: 'secret'
+    }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "already exists"
+  end
+
+  def test_new_account_passwords_must_match
+    post '/users/signup/create', {
+      new_username: 'test',
+      new_password: 'password',
+      verify_password: 'different'
+    }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "must match"
+  end
+
+  def test_users_can_create_and_delete_accounts
+    post '/users/signup/create', {
+      new_username: 'new_user',
+      new_password: 'password',
+      verify_password: 'password'
+    }
+
+    assert_equal "Account 'new_user' created", session[:success]
+
+    post '/users/new_user/delete', { password: 'password' }, delete_test_sesh
+
+    get last_response["Location"]
+
+    assert_includes last_response.body, "was deleted"
   end
 end

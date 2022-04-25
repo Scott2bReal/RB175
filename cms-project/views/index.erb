@@ -1,3 +1,4 @@
+<h1 class='page-title'>RB175 CMS Project</h1>
 <ul>
   <% @files.each do |file| %>
     <li>
@@ -14,17 +15,21 @@
   <a href='/new'>New document</a>
 </div>
 
-<% if session[:signed_in?] %>
+<% if session[:username] %>
   <div>
     <form class="inline" action="/users/signout" method="post">
       <p class="user-status">
         Signed in as <%= session[:username] %>
         <button type="submit">Sign Out</button>
       </p>
+      <p class="user-status"><a href="/users/<%= session[:username] %>/delete">Delete my account</a></p>
     </form>
   </div>
 <% else %>
   <div>
     <p class="user-status"><a href='/users/signin'>Sign in</a></p>
+  </div>
+  <div>
+    <p class="user-status"><a href='/users/signup'>Create new account</a></p>
   </div>
 <% end %>

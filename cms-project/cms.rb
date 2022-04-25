@@ -1,10 +1,9 @@
+require 'bcrypt'
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'redcarpet'
 require 'tilt/erubis'
 require 'yaml'
-
-MUST_SIGN_IN_ERROR_MESSAGE = "You must be signed in to do that"
 
 def signed_in?
   return true if session[:username]
@@ -12,7 +11,7 @@ def signed_in?
 end
 
 def redirect_to_index_with_error_message
-  session[:error] = MUST_SIGN_IN_ERROR_MESSAGE
+  session[:error] = "You must be signed in to do that"
   redirect '/'
 end
 
@@ -60,6 +59,14 @@ def error_for_new_file_name(filename)
   end
 end
 
+def credentials_path
+  if ENV["RACK_ENV"] == 'test'
+    File.expand_path("../test/", __FILE__)
+  else
+    File.expand_path("../", __FILE__)
+  end
+end
+
 def load_user_credentials
   path = if ENV["RACK_ENV"] == 'test'
            File.expand_path('../test/users.yml', __FILE__)
@@ -72,7 +79,55 @@ end
 
 def valid_login?(username, password)
   valid_logins = load_user_credentials
-  valid_logins[username] == password
+
+  if valid_logins.key?(username)
+    bcrypt_password = BCrypt::Password.new(valid_logins[username])
+    bcrypt_password == password
+  else
+    false
+  end
+end
+
+def error_for_new_user_form(username, password, verify_password)
+  if !valid_new_username_length?(username)
+    "Username is too long"
+  elsif username_already_exists?(username)
+    "The username #{username} already exists."
+  elsif !new_passwords_match?(password, verify_password)
+    "Passwords must match"
+  end
+end
+
+def valid_new_username_length?(username)
+  (4..12).cover? username.size
+end
+
+def username_already_exists?(username)
+  load_user_credentials.key?(username)
+end
+
+def new_passwords_match?(password, verify_password)
+  password == verify_password
+end
+
+def create_bcrypt_password(password)
+  BCrypt::Password.create(password)
+end
+
+def create_new_user(username, password)
+  credentials = load_user_credentials
+  credentials[username] = create_bcrypt_password(password).to_str
+  update_credentials_file(credentials)
+end
+
+def delete_existing_user(username)
+  credentials = load_user_credentials
+  credentials.delete(username)
+  update_credentials_file(credentials)
+end
+
+def update_credentials_file(new_credentials)
+  File.write(File.join(credentials_path, 'users.yml'), new_credentials.to_yaml)
 end
 
 configure do
@@ -85,15 +140,59 @@ before do
   @files = Dir.glob("#{data_path}/*").map { |path| File.basename(path) }.sort
 end
 
+# View create user account page
+get '/users/signup' do
+  erb :signup
+end
+
+# Submit create new user form
+post '/users/signup/create' do
+  username = params[:new_username]
+  password = params[:new_password]
+  verify_password = params[:verify_password]
+
+  error = error_for_new_user_form(username, password, verify_password)
+
+  if error
+    session[:error] = error
+    status 422
+    erb :signup
+  else
+    create_new_user(username, password)
+    session[:success] = "Account '#{username}' created"
+    redirect '/users/signin'
+  end
+end
+
+get '/users/:username/delete' do
+  erb :delete_account
+end
+
+# Delete user account
+post '/users/:current_user/delete' do
+  username = session[:username]
+
+  if valid_login?(username, params[:password])
+    delete_existing_user(username)
+    session[:username] = nil
+    session[:success] = "The user '#{username}' was deleted"
+    redirect '/'
+  else
+    session[:error] = "The password you entered was incorrect."
+    status 422
+    erb :delete_account
+  end
+end
+
 # View index
 get '/' do
-  session[:signed_in?] = true if session[:username]
+  # session[:signed_in?] = true if session[:username]
   erb :index
 end
 
 # If not logged in, display sign in page
 get '/users/signin' do
-  session[:signed_in?] ? (redirect '/') : (erb :sign_in)
+  session[:username] ? (redirect '/') : (erb :sign_in)
 end
 
 # Submit login form
@@ -102,7 +201,6 @@ post '/users/signin' do
   password = params[:password]
 
   if valid_login?(username, password)
-    session[:signed_in?] = true
     session[:username] = username
     session[:success] = "Welcome!"
     redirect '/'
@@ -115,8 +213,7 @@ end
 
 # Sign Out
 post '/users/signout' do
-  session[:signed_in?] = false
-  session.delete(:username)
+  session[:username] = nil
   session[:success] = "You have been signed out."
   redirect '/'
 end

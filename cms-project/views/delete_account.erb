@@ -1,0 +1,8 @@
+<h3>Enter your password to confirm account deletion</h3>
+
+<form class="inline" action="/users/<%= session[:username] %>/delete" method="post">
+  <input name="password" type="password" required>
+  <button type="submit">Delete my account</button>
+</form>
+
+<p class="user-status"><a href="/">Go back</a></p>
