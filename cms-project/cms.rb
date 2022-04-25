@@ -233,6 +233,8 @@ end
 
 # Duplicate existing file
 post '/:filename/duplicate' do
+  redirect_to_index_with_error_message unless signed_in?
+
   new_name = 'copy_of_' + params[:filename]
   FileUtils.cp("#{data_path}/#{params[:filename]}", "#{data_path}/#{new_name}")
   session[:success] = "#{params[:filename]} was copied to #{new_name}"

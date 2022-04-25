@@ -371,4 +371,17 @@ class CMSTest < Minitest::Test
 
     assert_includes last_response.body, "was deleted"
   end
+
+  def test_doucments_can_be_copied
+    create_document('new.txt')
+
+    post '/new.txt/duplicate', {}, admin_session
+
+    assert_equal 302, last_response.status
+    assert_equal "new.txt was copied to copy_of_new.txt", session[:success]
+
+    get last_response["Location"]
+
+    assert_includes last_response.body, "copy_of"
+  end
 end
