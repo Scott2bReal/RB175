@@ -1,4 +1,5 @@
 require 'bcrypt'
+require 'fileutils'
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'redcarpet'
@@ -223,6 +224,18 @@ get '/new' do
   redirect_to_index_with_error_message unless signed_in?
 
   erb :new
+end
+
+def increment_filename_for_duplication(filename)
+  if filename.match?(/\d+.txt|\d+.md/)
+  end
+end
+
+# TODO Duplicate existing file
+post '/:filename/duplicate' do
+  new_filename = increment_filename_for_duplication(params[:filename])
+  session[:success] = "#{params[:filename]} was copied to #{new_filename}"
+  erb :index
 end
 
 # Create new file

@@ -4,6 +4,7 @@ GEM
     backports (3.23.0)
     bcrypt (3.1.17)
     erubis (2.7.0)
+    fileutils (1.6.0)
     minitest (5.15.0)
     multi_json (1.15.0)
     rack (1.6.13)
@@ -33,6 +34,7 @@ PLATFORMS
 DEPENDENCIES
   bcrypt
   erubis
+  fileutils
   minitest
   rack-test
   redcarpet
