@@ -55,7 +55,7 @@ def error_for_new_file_name(filename)
     "A name is required."
   elsif @files.include?(filename)
     "That file name is already in use."
-  elsif !filename.match?(/\S(\.md$|\.txt$|\.jpg$|\.png$)/)
+  elsif !filename.match?(/\S(\.md$|\.txt$)/)
     "Files must have a valid extension (.md or .txt)"
   end
 end
@@ -226,11 +226,6 @@ get '/new' do
   erb :new
 end
 
-def increment_filename_for_duplication(filename)
-  if filename.match?(/\d+.txt|\d+.md/)
-  end
-end
-
 # Duplicate existing file
 post '/:filename/duplicate' do
   redirect_to_index_with_error_message unless signed_in?
@@ -266,6 +261,33 @@ post '/:filename/delete' do
   session[:success] = "#{params[:filename]} was successfully deleted."
   status 204
   redirect '/'
+end
+
+def error_for_uploaded_image(imagename)
+  "Must be .jpg or .png" unless imagename.match?(/\.jpg$|\.png$/)
+end
+
+def copy_image_to_data_dir(imagename)
+  p imagename
+end
+
+def display_image
+  p 'TODO'
+end
+
+# TODO Upload Image
+post '/upload_image' do
+  redirect_to_index_with_error_message unless signed_in?
+
+  error = error_for_uploaded_image(params[:imagename])
+
+  if error
+    session[:error] = error
+    redirect '/'
+  else
+    copy_image_to_data_dir(params[:imagename])
+    display_image
+  end
 end
 
 # View file

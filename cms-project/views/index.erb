@@ -16,6 +16,11 @@
 
 <div>
   <a href='/new'>New document</a>
+  <form action='/upload_image' method="post">
+    <label>Upload an image</label>
+    <input type="file" name="imagename">
+    <button type="submit">Upload Image</button>
+  </form>
 </div>
 
 <% if session[:username] %>
