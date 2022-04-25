@@ -55,7 +55,7 @@ def error_for_new_file_name(filename)
     "A name is required."
   elsif @files.include?(filename)
     "That file name is already in use."
-  elsif !filename.match?(/\S(\.md$|\.txt$)/)
+  elsif !filename.match?(/\S(\.md$|\.txt$|\.jpg$|\.png$)/)
     "Files must have a valid extension (.md or .txt)"
   end
 end
@@ -231,10 +231,11 @@ def increment_filename_for_duplication(filename)
   end
 end
 
-# TODO Duplicate existing file
+# Duplicate existing file
 post '/:filename/duplicate' do
-  new_filename = increment_filename_for_duplication(params[:filename])
-  session[:success] = "#{params[:filename]} was copied to #{new_filename}"
+  new_name = 'copy_of_' + params[:filename]
+  FileUtils.cp("#{data_path}/#{params[:filename]}", "#{data_path}/#{new_name}")
+  session[:success] = "#{params[:filename]} was copied to #{new_name}"
   redirect '/'
 end
 

@@ -7,6 +7,7 @@ main {
   max-width: 960px;
   padding: 10px;
   margin: 20px auto 1.5em auto;
+  text-align: center;
 }
 
 .flash.success {
