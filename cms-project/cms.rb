@@ -267,26 +267,26 @@ def error_for_uploaded_image(imagename)
   "Must be .jpg or .png" unless imagename.match?(/\.jpg$|\.png$/)
 end
 
-def copy_image_to_data_dir(imagename)
-  p imagename
-end
-
-def display_image
-  p 'TODO'
+def display_image(filename)
+  File.read("./uploads/#{filename}")
 end
 
 # TODO Upload Image
-post '/upload_image' do
+post '/upload' do
   redirect_to_index_with_error_message unless signed_in?
 
-  error = error_for_uploaded_image(params[:imagename])
+  temp_file = params[:image][:tempfile]
+  filename = params[:image][:filename]
+
+  error = error_for_uploaded_image(filename)
 
   if error
     session[:error] = error
     redirect '/'
   else
-    copy_image_to_data_dir(params[:imagename])
-    display_image
+    FileUtils.cp(temp_file.path, "./data/#{filename}")
+    @image_path = "#{@root}/data/#{filename}"
+    erb :image
   end
 end
 
