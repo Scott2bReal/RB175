@@ -7,6 +7,7 @@ gem "sinatra"
 gem "sinatra-contrib"
 
 gem 'minitest'
+gem 'minitest-reporters'
 gem "rack-test"
 
 gem 'bcrypt'

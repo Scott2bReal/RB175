@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <title>Cut Cats Voting Site</title>
+    <meta charset="UTF-8">
+    <!-- <link rel="stylesheet" href="/stylesheets/application.css"> 
+    <link rel="stylesheet" href="/stylesheets/whitespace-reset.css"> -->
+  </head>
+  <body>
+    <header>
+      <h1>Cut Cats Voting Site</h1>
+    </header>
+
+      <% if session[:success] %>
+        <div class="flash success">
+          <p><%= session.delete(:success) %></p>
+        </div>
+      <% end %>
+
+      <% if session[:error] %>
+        <div class="flash error">
+          <p><%= session.delete(:error) %></p>
+        </div>
+      <% end %>
+
+    <main>
+      <%= yield %> 
+    </main>
+  </body>
+</html>
